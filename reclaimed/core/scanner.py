@@ -258,6 +258,25 @@ class DiskScanner:
 
         return False
 
+    def _should_skip_file(self, file_path: Path) -> bool:
+        """Check if a file should be skipped (e.g., virtual filesystem files).
+
+        Args:
+            file_path: Path to the file to check
+
+        Returns:
+            True if the file should be skipped, False otherwise
+        """
+        # Skip known large virtual files that don't represent real disk usage
+        virtual_files = {
+            "/proc/kcore",  # Kernel memory representation
+            "/proc/vmcore", # Virtual memory core dump
+            "/dev/mem",     # Physical memory
+            "/dev/kmem",    # Kernel memory
+        }
+        
+        return str(file_path) in virtual_files
+
     async def _walk_directory_async(self, path: Path) -> AsyncIterator[Tuple[Path, bool, int, float]]:
         """Asynchronously walk directory tree with adaptive traversal.
 
@@ -292,10 +311,14 @@ class DiskScanner:
                             else:
                                 # Get file stats directly from DirEntry for better performance
                                 try:
+                                    entry_path = Path(entry.path)
+                                    if self._should_skip_file(entry_path):
+                                        continue
+                                    
                                     stat_result = entry.stat() # Get stat result once
                                     size = stat_result.st_size
                                     last_modified = stat_result.st_mtime # Get timestamp
-                                    yield Path(entry.path), True, size, last_modified # Yield timestamp
+                                    yield entry_path, True, size, last_modified # Yield timestamp
                                     processed_count += 1
 
                                     # After processing 500 files, we know it's not a small directory
@@ -360,6 +383,9 @@ class DiskScanner:
                     else:
                         # Get file stats directly from DirEntry for better performance
                         try:
+                            if self._should_skip_file(entry_path):
+                                continue
+                                
                             stat_result = entry.stat() # Get stat result once
                             size = stat_result.st_size
                             last_modified = stat_result.st_mtime # Get timestamp

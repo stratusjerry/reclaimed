@@ -48,4 +48,4 @@ class ScanOptions:
     def __post_init__(self):
         """Set default values after initialization."""
         if self.skip_dirs is None:
-            self.skip_dirs = [".Trash", "System Volume Information"]
+            self.skip_dirs = [".Trash", "System Volume Information", "proc", "sys", "dev"]
