@@ -81,3 +81,15 @@ target-version = "py39"
 
 [tool.ruff.lint]
 select = ["E", "F", "B", "I"]
+
+[tool.nuitka]
+# Nuitka static binary build configuration — use ./build_nuitka.sh to build.
+# The build script handles platform-specific flags and workarounds for
+# bundling stdlib io.py and rich's unicode data files.
+onefile = true
+standalone = true
+output-filename = "reclaimed"
+include-package = "reclaimed"
+include-package-data = "reclaimed"
+remove-output = true
+assume-yes-for-downloads = true
