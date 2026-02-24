@@ -189,7 +189,7 @@ sudo apt install patchelf  # Debian/Ubuntu
 ./build_nuitka.sh
 ```
 
-This produces a `reclaimed` (or `reclaimed.exe` on Windows) binary that requires no Python installation to run. The build script auto-detects your platform and selects the appropriate C backend — Zig on Windows, system compiler on Linux/macOS.
+This produces a `reclaimed` (or `reclaimed.exe` on Windows) binary that requires no Python installation to run. The build script auto-detects your platform and selects the appropriate C backend — Zig on Windows, system compiler on Linux/macOS. On Windows, run the build script from [Git Bash](https://git-scm.com/downloads/win).
 
 ---
 
