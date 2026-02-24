@@ -1,8 +1,9 @@
 #!/bin/bash
 set -e
 
-# Build a statically linked binary using Nuitka
+# Build a standalone binary using Nuitka
 # Requires: pip install nuitka ordered-set
+# Linux also requires: sudo apt install patchelf
 
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
@@ -36,13 +37,12 @@ fi
 
 # Clean previous build artifacts
 echo -e "${YELLOW}Cleaning previous build artifacts...${NC}"
-rm -rf build/ nuitka_main.dist/ nuitka_main.build/ nuitka_main.onefile-build/
+rm -rf dist/ nuitka_main.dist/ nuitka_main.build/ nuitka_main.onefile-build/
 
 # Platform-specific flags
 PLATFORM_FLAGS=()
 case "$(uname -s)" in
     Linux*)
-        PLATFORM_FLAGS+=("--static-libpython=yes")
         ;;
     MINGW*|MSYS*|CYGWIN*|Windows*)
         PLATFORM_FLAGS+=("--zig")
@@ -62,6 +62,7 @@ echo -e "${YELLOW}Compiling static binary...${NC}"
 python -m nuitka \
     --onefile \
     --standalone \
+    --output-dir=dist \
     --output-filename="$OUTPUT_NAME" \
     --include-package=reclaimed \
     --include-package-data=reclaimed \
@@ -74,8 +75,8 @@ python -m nuitka \
 
 echo -e "${GREEN}Build complete!${NC}"
 
-if [ -f "./$OUTPUT_NAME" ]; then
-    SIZE=$(ls -lh "./$OUTPUT_NAME" | awk '{print $5}')
-    echo -e "${GREEN}Binary: ./$OUTPUT_NAME ($SIZE)${NC}"
-    echo -e "${GREEN}Test with: ./$OUTPUT_NAME --help${NC}"
+if [ -f "dist/$OUTPUT_NAME" ]; then
+    SIZE=$(ls -lh "dist/$OUTPUT_NAME" | awk '{print $5}')
+    echo -e "${GREEN}Binary: dist/$OUTPUT_NAME ($SIZE)${NC}"
+    echo -e "${GREEN}Test with: dist/$OUTPUT_NAME --help${NC}"
 fi

@@ -179,13 +179,17 @@ You can compile reclaimed into a single self-contained executable using [Nuitka]
 
 ```bash
 # Install build dependencies
-pip install nuitka ordered-set
+uv pip install nuitka ordered-set
+
+# Linux only: install patchelf (required by Nuitka standalone mode)
+sudo apt install patchelf  # Debian/Ubuntu
+# sudo dnf install patchelf  # Fedora/RHEL
 
 # Build the binary
 ./build_nuitka.sh
 ```
 
-This produces a `reclaimed` (or `reclaimed.exe` on Windows) binary that requires no Python installation to run. The build script auto-detects your platform and selects the appropriate C backend — Zig on Windows, system compiler on Linux/macOS. On Linux, libpython is statically linked.
+This produces a `reclaimed` (or `reclaimed.exe` on Windows) binary that requires no Python installation to run. The build script auto-detects your platform and selects the appropriate C backend — Zig on Windows, system compiler on Linux/macOS.
 
 ---
 
