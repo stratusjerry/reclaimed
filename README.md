@@ -173,6 +173,20 @@ uv build --sdist --wheel
 python -m reclaimed /path/to/scan
 ```
 
+### Build Standalone Binary
+
+You can compile reclaimed into a single self-contained executable using [Nuitka](https://nuitka.net/):
+
+```bash
+# Install build dependencies
+pip install nuitka ordered-set
+
+# Build the binary
+./build_nuitka.sh
+```
+
+This produces a `reclaimed` (or `reclaimed.exe` on Windows) binary that requires no Python installation to run. The build script auto-detects your platform and selects the appropriate C backend — Zig on Windows, system compiler on Linux/macOS. On Linux, libpython is statically linked.
+
 ---
 
 ## 🤝 Contributing
