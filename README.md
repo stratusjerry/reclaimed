@@ -178,8 +178,8 @@ python -m reclaimed /path/to/scan
 You can compile reclaimed into a single self-contained executable using [Nuitka](https://nuitka.net/):
 
 ```bash
-# Install build dependencies
-uv pip install nuitka ordered-set
+# Install build dependencies (pin Nuitka — see note below)
+uv pip install nuitka==4.1.3 ordered-set
 
 # Linux only: install patchelf (required by Nuitka standalone mode)
 sudo apt install patchelf  # Debian/Ubuntu
@@ -190,6 +190,16 @@ sudo apt install patchelf  # Debian/Ubuntu
 ```
 
 This produces a `reclaimed` (or `reclaimed.exe` on Windows) binary that requires no Python installation to run. The build script auto-detects your platform and selects the appropriate C backend — Zig on Windows, system compiler on Linux/macOS. On Windows, run the build script from [Git Bash](https://git-scm.com/downloads/win).
+
+**LTO is on by default** — link-time optimization strips dead code across the whole binary for a noticeably smaller result, but the link step alone can add several minutes to the build. For a faster iteration, override it:
+
+```bash
+LTO=no ./build_nuitka.sh
+```
+
+**Nuitka is pinned to `4.1.3`** — its `--zig` backend has no version pin of its own and always fetches whatever's newest on PyPI, so behavior can shift under you between builds.
+
+Zig itself requires no manual install: on first run Nuitka downloads and caches it automatically under `%LOCALAPPDATA%\Nuitka\Nuitka\Cache`. However, `build_nuitka.sh` pins it to **Zig 0.14.1** rather than letting Nuitka grab latest, because Zig 0.16.0 (current PyPI latest) fails to link when combined with this project's `--lto=yes` — it errors with a wall of `undefined symbol` errors (`frexpf`, `wmemchr`, `isnan`, `__QNAN`, ...) coming from Zig's own `zigc.lib`. 0.13.0 doesn't work either — it's too old to support the C23 `#embed` directive Nuitka's zig backend relies on for resource embedding. The script pre-seeds Nuitka's private pip cache with 0.14.1 before building, so no manual Zig install step is needed; if you invoke `python -m nuitka` yourself outside the script, it will download unpinned latest and prompt to confirm (pass `--assume-yes-for-downloads` to skip the prompt).
 
 ---
 
